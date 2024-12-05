@@ -1,4 +1,4 @@
-package me.holiday.auth.common.config;
+package me.holiday.common.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
