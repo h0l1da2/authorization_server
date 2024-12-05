@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Builder
 public record ApiErrorResponse(
-        HttpStatusCode code,
+        Integer code,
         HttpStatus status,
         String message,
         LocalDateTime timestamp
@@ -17,7 +17,7 @@ public record ApiErrorResponse(
     public static ApiErrorResponse of(DefaultException e) {
         return ApiErrorResponse.builder()
                 .message(e.message)
-                .code(e.httpStatus)
+                .code(e.httpStatus.value())
                 .status(e.httpStatus)
                 .timestamp(LocalDateTime.now())
                 .build();
