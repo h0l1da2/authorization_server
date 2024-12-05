@@ -2,9 +2,15 @@ package me.holiday.auth.api;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import me.holiday.auth.api.dto.SignInDto.SignInResDto;
 import me.holiday.auth.api.dto.SignUpDto;
 import me.holiday.auth.service.AuthService;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import static me.holiday.auth.api.dto.SignInDto.SignInReqDto;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,5 +26,10 @@ public class AuthApi {
     @PostMapping("/sign-up")
     public void signUp(@RequestBody @Valid SignUpDto dto) {
         authService.signUp(dto);
+    }
+
+    @PostMapping("/sign-in")
+    public SignInResDto signIn(@RequestBody @Valid SignInReqDto dto) {
+        return authService.signIn(dto);
     }
 }

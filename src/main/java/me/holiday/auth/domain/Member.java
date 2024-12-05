@@ -5,8 +5,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
+import me.holiday.auth.exception.MemberException;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Getter
 @Entity
@@ -25,5 +29,16 @@ public class Member {
     private String phoneNumber;
 
     private LocalDateTime createdAt;
+
+    public void validPwd(String password, BCryptPasswordEncoder encoder) {
+        boolean matches = encoder.matches(password, this.password);
+        if (!matches) {
+            throw new MemberException(
+                    HttpStatus.NOT_FOUND,
+                    "로그인 실패",
+                    Map.of("username", this.username)
+            );
+        }
+    }
 
 }
