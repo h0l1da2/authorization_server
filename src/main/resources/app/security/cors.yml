@@ -1,0 +1,18 @@
+app:
+  security:
+    cors:
+      exposed-headers: "*"
+      max-age: 3600
+      allowed:
+        methods:
+          - GET
+          - POST
+          - PATCH
+          - PUT
+          - DELETE
+          - OPTIONS
+        headers:
+          - "*"
+        origins:
+          - http://localhost:8080
+        credentials: true
