@@ -2,7 +2,6 @@ package me.holiday.common.exception;
 
 import lombok.Builder;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 
 import java.time.LocalDateTime;
 
