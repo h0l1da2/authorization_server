@@ -1,4 +1,4 @@
-package me.holiday.auth.common.config;
+package me.holiday.common.config;
 
 import org.springframework.boot.context.properties.ConfigurationPropertiesBinding;
 

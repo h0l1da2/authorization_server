@@ -1,4 +1,4 @@
-package me.holiday.auth.common.exception;
+package me.holiday.common.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
