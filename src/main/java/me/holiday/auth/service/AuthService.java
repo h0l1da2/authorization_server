@@ -7,6 +7,7 @@ import me.holiday.auth.domain.Member;
 import me.holiday.auth.exception.MemberException;
 import me.holiday.auth.repository.MemberRepository;
 import me.holiday.common.annotation.log.LogExecution;
+import me.holiday.token.TokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import static me.holiday.auth.api.dto.SignInDto.SignInReq;
 public class AuthService {
 
     private final MemberRepository memberRepository;
+    private final TokenService tokenService;
     private final BCryptPasswordEncoder passwordEncoder;
 
     @LogExecution(message = "회원 가입 요청")
@@ -50,7 +52,9 @@ public class AuthService {
         // 비밀 번호 검증
         member.validPwd(dto.password(), passwordEncoder);
 
-        return new SignInRes("accessToken", "refreshToken");
+        String accessToken = tokenService.getAccessToken(member.getId());
+        String refreshToken = tokenService.getRefreshToken();
+        return new SignInRes(accessToken, refreshToken);
     }
 
     private Optional<Member> findByUsername(String username) {
