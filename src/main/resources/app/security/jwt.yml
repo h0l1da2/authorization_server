@@ -1,0 +1,7 @@
+app:
+  security:
+    token:
+      validTime:
+          access: 3600000 # 1H
+          refresh: 86400000 # 1D
+      secretkey: QmFzZTY0U2VjcmV0S2V5QGV4YW1wbGUhQCMkLg==
