@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 public record SignInDto(
 
 ) {
-        public record SignInReqDto(
+        public record SignInReq(
                 @NotBlank
                 String username,
                 @NotBlank
@@ -14,7 +14,7 @@ public record SignInDto(
 
         }
 
-        public record SignInResDto(
+        public record SignInRes(
                 String accessToken,
                 String refreshToken
         ) {
