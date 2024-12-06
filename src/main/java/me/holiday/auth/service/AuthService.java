@@ -1,6 +1,7 @@
 package me.holiday.auth.service;
 
 import lombok.RequiredArgsConstructor;
+import me.holiday.auth.api.dto.SignInDto.SignInRes;
 import me.holiday.auth.api.dto.SignUpDto;
 import me.holiday.auth.domain.Member;
 import me.holiday.auth.exception.MemberException;
@@ -13,8 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.Optional;
 
-import static me.holiday.auth.api.dto.SignInDto.SignInReqDto;
-import static me.holiday.auth.api.dto.SignInDto.SignInResDto;
+import static me.holiday.auth.api.dto.SignInDto.SignInReq;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +23,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    @LogExecution("회원 가입 요청")
+    @LogExecution(message = "회원 가입 요청")
     public void signUp(SignUpDto dto) {
         // 중복 아이디 불가
         boolean isSameUsername = findByUsername(dto.username()).isPresent();
@@ -38,8 +38,8 @@ public class AuthService {
         memberRepository.save(member);
     }
 
-    @LogExecution("로그인 요청")
-    public SignInResDto signIn(SignInReqDto dto) {
+    @LogExecution(message = "로그인 요청")
+    public SignInRes signIn(SignInReq dto) {
         Member member = findByUsername(dto.username())
                 .orElseThrow(() -> new MemberException(
                         HttpStatus.NOT_FOUND,
@@ -50,7 +50,7 @@ public class AuthService {
         // 비밀 번호 검증
         member.validPwd(dto.password(), passwordEncoder);
 
-        return new SignInResDto("accessToken", "refreshToken");
+        return new SignInRes("accessToken", "refreshToken");
     }
 
     private Optional<Member> findByUsername(String username) {

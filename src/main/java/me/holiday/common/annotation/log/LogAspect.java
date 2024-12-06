@@ -17,7 +17,7 @@ public class LogAspect {
     @AfterReturning(pointcut = "logPointcut(logExecution)", returning = "result")
     public void logAfterExecution(JoinPoint joinPoint, LogExecution logExecution, Object result) {
         String methodName = joinPoint.getSignature().getName();
-        String logMessage = logExecution.value();
+        String logMessage = logExecution.message();
 
         log.info("[{}] 성공 - {}, {}",
                 methodName,
