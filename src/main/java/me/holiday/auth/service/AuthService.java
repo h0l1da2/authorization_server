@@ -5,6 +5,7 @@ import me.holiday.auth.api.dto.SignUpDto;
 import me.holiday.auth.domain.Member;
 import me.holiday.auth.exception.MemberException;
 import me.holiday.auth.repository.MemberRepository;
+import me.holiday.common.annotation.log.LogExecution;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
+    @LogExecution("회원 가입 요청")
     public void signUp(SignUpDto dto) {
         // 중복 아이디 불가
         boolean isSameUsername = findByUsername(dto.username()).isPresent();
@@ -36,6 +38,7 @@ public class AuthService {
         memberRepository.save(member);
     }
 
+    @LogExecution("로그인 요청")
     public SignInResDto signIn(SignInReqDto dto) {
         Member member = findByUsername(dto.username())
                 .orElseThrow(() -> new MemberException(
