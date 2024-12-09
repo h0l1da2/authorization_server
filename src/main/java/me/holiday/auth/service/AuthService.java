@@ -7,6 +7,7 @@ import me.holiday.auth.domain.Member;
 import me.holiday.auth.exception.MemberException;
 import me.holiday.auth.repository.MemberRepository;
 import me.holiday.common.annotation.log.LogExecution;
+import me.holiday.redis.RedisService;
 import me.holiday.token.TokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,6 +25,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final TokenService tokenService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final RedisService redisService;
 
     @LogExecution(message = "회원 가입 요청")
     public void signUp(SignUpDto dto) {
@@ -54,6 +56,13 @@ public class AuthService {
 
         String accessToken = tokenService.getAccessToken(member.getId());
         String refreshToken = tokenService.getRefreshToken();
+
+        // Redis 저장
+        redisService.sendLoginTokenMessage(
+                Map.of(
+                        member.getId() + "_access", accessToken,
+                        member.getId() + "_refresh", refreshToken
+        ));
         return new SignInRes(accessToken, refreshToken);
     }
 
