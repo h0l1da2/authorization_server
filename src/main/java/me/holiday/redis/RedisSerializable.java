@@ -13,7 +13,7 @@ public class RedisSerializable {
 
     private final ObjectMapper mapper;
 
-    public String serialize(Map<Object, Object> map) throws JsonProcessingException {
+    public String serialize(Map<String, String> map) throws JsonProcessingException {
         return mapper.writeValueAsString(map);
     }
 
