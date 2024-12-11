@@ -25,6 +25,7 @@ public class Member {
     private String username;
     private String password;
 
+    private RoleName role;
     private String name;
     private String phoneNumber;
 

@@ -5,7 +5,8 @@ public enum TokenConstant {
     REFRESH_TOKEN("refreshToken"),
     MEMBER_ID("memberId"),
     BEARER("Bearer "),
-    EXP("exp")
+    EXP("exp"),
+    ROLE("role")
     ;
 
     private String value;
