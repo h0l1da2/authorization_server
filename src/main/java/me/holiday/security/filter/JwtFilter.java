@@ -60,9 +60,23 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+        Long memberId = tokenService.getMemberId(token);
+        boolean isTokenExists = isTokenValidFromHttpReqToRedisAuthServer(memberId);
+        if (!isTokenExists) {
+            log.error("[JWT] Redis Server 에 토큰 없음");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        Authentication auth = getAuthentication(token);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        log.info("[JWT] 권한 인증 성공 - memberId: {}", memberId);
+    }
+
+    private boolean isTokenValidFromHttpReqToRedisAuthServer(Long memberId) {
         HttpClient httpClient = HttpClient.newHttpClient();
 
-        Long memberId = tokenService.getMemberId(token);
         HttpRequest redisAuthReq = HttpRequest.newBuilder()
                 .uri(URI.create(authReqProperties.uri() + "/access-token?memberId=" + memberId))
                 .headers(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -76,24 +90,18 @@ public class JwtFilter extends OncePerRequestFilter {
                             HttpResponse.BodyHandlers.ofString());
 
             if (redisAuthRes.statusCode() != 200) {
-                log.error("[JWT] Status Not 200 From Redis Auth Server - Body : {}", redisAuthRes.body());
-                filterChain.doFilter(request, response);
-                return;
+                return false;
             }
-
+            
             log.info("[JWT] 200 From Redis Auth Server");
-        } catch (InterruptedException e) {
+            return true;
+        } catch (InterruptedException | IOException e) {
             log.error("[JWT] Redis Auth Server Req Error : {}", e.getMessage());
             throw new ServerException();
         }
-
-        Authentication auth = getAuthentication(token);
-        SecurityContextHolder.getContext().setAuthentication(auth);
-
-        log.info("[JWT] 권한 인증 성공 - memberId: {}", memberId);
     }
 
-    public Authentication getAuthentication(String token) {
+    private Authentication getAuthentication(String token) {
         Long adminId = tokenService.getMemberId(token);
         ArrayList<GrantedAuthority> auths = new ArrayList<>();
         String roleName = tokenService.getRoleName(token);
