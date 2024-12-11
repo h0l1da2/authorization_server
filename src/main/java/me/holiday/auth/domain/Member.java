@@ -1,9 +1,6 @@
 package me.holiday.auth.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import me.holiday.auth.exception.MemberException;
 import org.springframework.http.HttpStatus;
@@ -25,6 +22,7 @@ public class Member {
     private String username;
     private String password;
 
+    @Enumerated(EnumType.STRING)
     private RoleName role;
     private String name;
     private String phoneNumber;
