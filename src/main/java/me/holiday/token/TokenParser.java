@@ -17,12 +17,9 @@ import java.util.Map;
 @Component
 public class TokenParser {
 
-    private final TokenProperties tokenProperties;
     private final JwtParser jwtParser;
 
     public TokenParser(TokenProperties tokenProperties) {
-        this.tokenProperties = tokenProperties;
-
         SecretKey key = Keys.hmacShaKeyFor(
                 tokenProperties
                         .secretkey()
@@ -38,7 +35,7 @@ public class TokenParser {
         try {
             Map<String, Object> payload = getPayload(token);
             if (!payload.isEmpty()) {
-                Long exp = (Long) payload.get(TokenConstant.EXP.name());
+                Long exp = (Long) payload.get(TokenConstant.EXP.getValue());
                 Instant instant = Instant.ofEpochSecond(exp);
                 LocalDateTime expLocalDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
                 return !expLocalDateTime.isBefore(LocalDateTime.now());
@@ -49,10 +46,18 @@ public class TokenParser {
         }
     }
 
+    public Long getMemberId(String token) {
+        String memberId = String.valueOf(
+                getPayload(token).get(TokenConstant.MEMBER_ID.getValue()));
+        return Long.parseLong(memberId);
+    }
+
     private Map<String, Object> getPayload(String token) {
-        if (token.startsWith(TokenConstant.BEARER.name())) {
-            token = token.substring(TokenConstant.BEARER.name().length());
-        }
         return (Map<String, Object>) jwtParser.parse(token).getPayload();
+    }
+
+    public String getRoleName(String token) {
+        return String.valueOf(
+                getPayload(token).get(TokenConstant.ROLE.getValue()));
     }
 }

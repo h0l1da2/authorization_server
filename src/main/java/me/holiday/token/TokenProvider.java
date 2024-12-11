@@ -3,6 +3,7 @@ package me.holiday.token;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import me.holiday.auth.domain.Member;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -23,13 +24,13 @@ public class TokenProvider {
         this.tokenProperties = tokenProperties;
     }
 
-    public String createAccessToken(Long memberId) {
-        Claims claims = makeAccessClaims(memberId);
+    public String createAccessToken(Member member) {
+        Claims claims = makeAccessClaims(member);
 
         return Jwts.builder()
                 .header().add(
-                        TokenConstant.ACCESS_TOKEN.name(),
-                        TokenConstant.BEARER.name()).and()
+                        TokenConstant.ACCESS_TOKEN.getValue(),
+                        TokenConstant.BEARER.getValue()).and()
                 .claims(claims)
                 .signWith(key)
                 .compact();
@@ -40,23 +41,24 @@ public class TokenProvider {
 
         return Jwts.builder()
                 .header().add(
-                        TokenConstant.REFRESH_TOKEN.name(),
-                        TokenConstant.BEARER.name()).and()
+                        TokenConstant.REFRESH_TOKEN.getValue(),
+                        TokenConstant.BEARER.getValue()).and()
                 .claims(claims)
                 .signWith(key)
                 .compact();
     }
 
-    private Claims makeAccessClaims(Long memberId) {
+    private Claims makeAccessClaims(Member member) {
         Date now = new Date();
 
         return Jwts.claims()
-                .subject(TokenConstant.ACCESS_TOKEN.name())
+                .subject(TokenConstant.ACCESS_TOKEN.getValue())
                 .issuedAt(now)
                 .expiration(new Date(
                         now.getTime()
                         + tokenProperties.validTime().access()))
-                .add(TokenConstant.MEMBER_ID.name(), memberId)
+                .add(TokenConstant.MEMBER_ID.getValue(), member.getId())
+                .add(TokenConstant.ROLE.getValue(), member.getRole())
                 .build();
     }
 
@@ -64,7 +66,7 @@ public class TokenProvider {
         Date now = new Date();
 
         return Jwts.claims()
-                .subject(TokenConstant.REFRESH_TOKEN.name())
+                .subject(TokenConstant.REFRESH_TOKEN.getValue())
                 .issuedAt(now)
                 .expiration(new Date(
                         now.getTime()

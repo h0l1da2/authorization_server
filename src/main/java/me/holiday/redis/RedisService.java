@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.holiday.common.exception.ServerException;
+import me.holiday.token.TokenConstant;
 import me.holiday.token.TokenProperties;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -25,24 +26,20 @@ public class RedisService {
             template.convertAndSend("token", serialize);
 
             message.keySet().forEach(key -> {
-                        switch (key) {
-                            case "access" -> template.opsForValue().set(
-                                    key,
-                                    message.get(key),
-                                    tokenProperties.validTime().access());
+                if (key.contains(TokenConstant.ACCESS.getValue())) {
+                    template.opsForValue().set(
+                            key,
+                            message.get(key),
+                            tokenProperties.validTime().access());
+                }
 
-                            case "refresh" -> template.opsForValue().set(
-                                    key,
-                                    message.get(key),
-                                    tokenProperties.validTime().refresh());
-
-                            default -> {
-                                log.error("[Redis] access , refresh 가 아닌 key : {}", key);
-                                throw new ServerException();
-                            }
-                        }
-                    }
-            );
+                if (key.contains(TokenConstant.REFRESH.getValue())) {
+                    template.opsForValue().set(
+                            key,
+                            message.get(key),
+                            tokenProperties.validTime().refresh());
+                }
+            });
 
             log.info("[Redis] 메시지 밣행 : {}",  message);
         } catch (JsonProcessingException e) {

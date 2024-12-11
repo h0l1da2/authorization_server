@@ -54,7 +54,7 @@ public class AuthService {
         // 비밀 번호 검증
         member.validPwd(dto.password(), passwordEncoder);
 
-        String accessToken = tokenService.getAccessToken(member.getId());
+        String accessToken = tokenService.getAccessToken(member);
         String refreshToken = tokenService.getRefreshToken();
 
         // Redis 저장
