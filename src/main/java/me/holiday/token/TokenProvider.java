@@ -3,6 +3,7 @@ package me.holiday.token;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import me.holiday.auth.domain.Member;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -23,8 +24,8 @@ public class TokenProvider {
         this.tokenProperties = tokenProperties;
     }
 
-    public String createAccessToken(Long memberId) {
-        Claims claims = makeAccessClaims(memberId);
+    public String createAccessToken(Member member) {
+        Claims claims = makeAccessClaims(member);
 
         return Jwts.builder()
                 .header().add(
@@ -47,7 +48,7 @@ public class TokenProvider {
                 .compact();
     }
 
-    private Claims makeAccessClaims(Long memberId) {
+    private Claims makeAccessClaims(Member member) {
         Date now = new Date();
 
         return Jwts.claims()
@@ -56,7 +57,8 @@ public class TokenProvider {
                 .expiration(new Date(
                         now.getTime()
                         + tokenProperties.validTime().access()))
-                .add(TokenConstant.MEMBER_ID.name(), memberId)
+                .add(TokenConstant.MEMBER_ID.name(), member.getId())
+                .add(TokenConstant.ROLE.name(), member.getRole())
                 .build();
     }
 
