@@ -9,6 +9,7 @@ spring:
     import:
       - classpath:app/security/cors.yml
       - classpath:app/security/jwt.yml
+      - classpath:app/security/auth.yml
 
   datasource:
     url: jdbc:h2:~/test
