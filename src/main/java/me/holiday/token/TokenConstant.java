@@ -1,6 +1,11 @@
 package me.holiday.token;
 
+import lombok.Getter;
+
+@Getter
 public enum TokenConstant {
+    ACCESS("access"),
+    REFRESH("refresh"),
     ACCESS_TOKEN("accessToken"),
     REFRESH_TOKEN("refreshToken"),
     MEMBER_ID("memberId"),

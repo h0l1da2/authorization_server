@@ -26,14 +26,14 @@ public class RedisService {
             template.convertAndSend("token", serialize);
 
             message.keySet().forEach(key -> {
-                if (key.contains(TokenConstant.ACCESS.name())) {
+                if (key.contains(TokenConstant.ACCESS.getValue())) {
                     template.opsForValue().set(
                             key,
                             message.get(key),
                             tokenProperties.validTime().access());
                 }
 
-                if (key.contains(TokenConstant.REFRESH.name())) {
+                if (key.contains(TokenConstant.REFRESH.getValue())) {
                     template.opsForValue().set(
                             key,
                             message.get(key),

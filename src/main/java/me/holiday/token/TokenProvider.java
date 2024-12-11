@@ -29,8 +29,8 @@ public class TokenProvider {
 
         return Jwts.builder()
                 .header().add(
-                        TokenConstant.ACCESS_TOKEN.name(),
-                        TokenConstant.BEARER.name()).and()
+                        TokenConstant.ACCESS_TOKEN.getValue(),
+                        TokenConstant.BEARER.getValue()).and()
                 .claims(claims)
                 .signWith(key)
                 .compact();
@@ -41,8 +41,8 @@ public class TokenProvider {
 
         return Jwts.builder()
                 .header().add(
-                        TokenConstant.REFRESH_TOKEN.name(),
-                        TokenConstant.BEARER.name()).and()
+                        TokenConstant.REFRESH_TOKEN.getValue(),
+                        TokenConstant.BEARER.getValue()).and()
                 .claims(claims)
                 .signWith(key)
                 .compact();
@@ -52,13 +52,13 @@ public class TokenProvider {
         Date now = new Date();
 
         return Jwts.claims()
-                .subject(TokenConstant.ACCESS_TOKEN.name())
+                .subject(TokenConstant.ACCESS_TOKEN.getValue())
                 .issuedAt(now)
                 .expiration(new Date(
                         now.getTime()
                         + tokenProperties.validTime().access()))
-                .add(TokenConstant.MEMBER_ID.name(), member.getId())
-                .add(TokenConstant.ROLE.name(), member.getRole())
+                .add(TokenConstant.MEMBER_ID.getValue(), member.getId())
+                .add(TokenConstant.ROLE.getValue(), member.getRole())
                 .build();
     }
 
@@ -66,7 +66,7 @@ public class TokenProvider {
         Date now = new Date();
 
         return Jwts.claims()
-                .subject(TokenConstant.REFRESH_TOKEN.name())
+                .subject(TokenConstant.REFRESH_TOKEN.getValue())
                 .issuedAt(now)
                 .expiration(new Date(
                         now.getTime()
