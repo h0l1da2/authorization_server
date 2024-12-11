@@ -27,6 +27,11 @@ public class AuthApi {
         authService.signUp(dto);
     }
 
+    /**
+     * 로그인
+     * @param dto : 아이디, 비번
+     * @return : access, refresh Token
+     */
     @PostMapping("/sign-in")
     public SignInRes signIn(@RequestBody @Valid SignInDto.SignInReq dto) {
         return authService.signIn(dto);
