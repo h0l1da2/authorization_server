@@ -34,9 +34,13 @@ public class AuthApi {
         return authService.signIn(dto);
     }
 
-    @GetMapping("/validation")
-    public void validToken(@RequestParam String authToken,
-                           @RequestParam Long memberId) {
-        authService.validToken(authToken, memberId);
+    /**
+     * 액세스 토큰 검증
+     * - 유효하지 않을 경우 예외 발생
+     * @param authToken : 액세스 토큰
+     */
+    @GetMapping("/validation/access-token")
+    public void validToken(@RequestParam String authToken) {
+        authService.validToken(authToken);
     }
 }

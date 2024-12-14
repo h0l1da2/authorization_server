@@ -75,7 +75,7 @@ public class AuthService {
     }
 
     @LogExecution(message = "토큰 검증 성공")
-    public void validToken(String authToken, Long memberId) {
+    public void validToken(String authToken) {
         if (!authToken.startsWith(TokenConstant.BEARER.getValue())) {
             throw new AuthException(
                     HttpStatus.BAD_REQUEST,
@@ -83,12 +83,10 @@ public class AuthService {
                     Map.of(TokenConstant.TOKEN.getValue(), authToken));
 
         }
-
         // 토큰 앞에 붙은 "Bearer " 제거
         authToken = authToken.substring(TokenConstant.BEARER.getValue().length());
-        redisService.isValidToken(
-                authToken,
-                memberId);
+
+        tokenService.validTokenByRedis(authToken);
     }
 
 }

@@ -51,13 +51,7 @@ public class RedisService {
         }
     }
 
-    public void isValidToken(String authToken, Long memberId) {
-        String token = template.opsForValue().get(memberId + TokenConstant.ACCESS_TOKEN_KEY_NAME.getValue());
-        if (StringUtils.hasText(token) || !token.equals(authToken)) {
-            throw new AuthException(
-                    HttpStatus.UNAUTHORIZED,
-                    "유효하지 않은 토큰",
-                    null);
-        }
+    public String getToken(Long memberId) {
+        return template.opsForValue().get(memberId + TokenConstant.ACCESS_TOKEN_KEY_NAME.getValue());
     }
 }
