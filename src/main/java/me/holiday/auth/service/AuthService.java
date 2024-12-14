@@ -1,13 +1,16 @@
 package me.holiday.auth.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.holiday.auth.api.dto.SignInDto.SignInRes;
 import me.holiday.auth.api.dto.SignUpDto;
 import me.holiday.auth.domain.Member;
 import me.holiday.auth.exception.MemberException;
 import me.holiday.auth.repository.MemberRepository;
 import me.holiday.common.annotation.log.LogExecution;
+import me.holiday.common.exception.AuthException;
 import me.holiday.redis.RedisService;
+import me.holiday.token.TokenConstant;
 import me.holiday.token.TokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,6 +21,7 @@ import java.util.Optional;
 
 import static me.holiday.auth.api.dto.SignInDto.SignInReq;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -60,8 +64,8 @@ public class AuthService {
         // Redis 저장
         redisService.sendLoginTokenMessage(
                 Map.of(
-                        member.getId() + "_access", accessToken,
-                        member.getId() + "_refresh", refreshToken
+                        member.getId() + TokenConstant.ACCESS_TOKEN_KEY_NAME.getValue(), accessToken,
+                        member.getId() + TokenConstant.REFRESH_TOKEN_KEY_NAME.getValue(), refreshToken
         ));
         return new SignInRes(accessToken, refreshToken);
     }
@@ -70,7 +74,21 @@ public class AuthService {
         return memberRepository.findByUsername(username);
     }
 
-//    public void signIn(SignInDto dto) {
-//
-//    }
+    @LogExecution(message = "토큰 검증 성공")
+    public void validToken(String authToken, Long memberId) {
+        if (!authToken.startsWith(TokenConstant.BEARER.getValue())) {
+            throw new AuthException(
+                    HttpStatus.BAD_REQUEST,
+                    "토큰 재확인",
+                    Map.of(TokenConstant.TOKEN.getValue(), authToken));
+
+        }
+
+        // 토큰 앞에 붙은 "Bearer " 제거
+        authToken = authToken.substring(TokenConstant.BEARER.getValue().length());
+        redisService.isValidToken(
+                authToken,
+                memberId);
+    }
+
 }
