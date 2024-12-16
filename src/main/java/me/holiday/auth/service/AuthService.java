@@ -4,13 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.holiday.auth.api.dto.SignInDto.SignInRes;
 import me.holiday.auth.api.dto.SignUpDto;
+import me.holiday.auth.api.dto.TokenReq;
 import me.holiday.auth.domain.Member;
 import me.holiday.auth.exception.MemberException;
 import me.holiday.auth.repository.MemberRepository;
 import me.holiday.common.annotation.log.LogExecution;
-import me.holiday.common.exception.AuthException;
 import me.holiday.redis.RedisService;
-import me.holiday.token.TokenConstant;
 import me.holiday.token.TokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -61,12 +60,9 @@ public class AuthService {
         String accessToken = tokenService.getAccessToken(member);
         String refreshToken = tokenService.getRefreshToken();
 
+        TokenReq tokenReq = tokenService.saveTokenReq(member.getId(), accessToken, refreshToken);
         // Redis 저장
-        redisService.sendLoginTokenMessage(
-                Map.of(
-                        member.getId() + TokenConstant.ACCESS_TOKEN_KEY_NAME.getValue(), accessToken,
-                        member.getId() + TokenConstant.REFRESH_TOKEN_KEY_NAME.getValue(), refreshToken
-        ));
+        redisService.sendLoginTokenMessage(tokenReq);
         return new SignInRes(accessToken, refreshToken);
     }
 

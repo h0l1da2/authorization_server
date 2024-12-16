@@ -2,6 +2,8 @@ package me.holiday.token;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.holiday.auth.api.dto.TokenReq;
+import me.holiday.auth.api.dto.TokenRes;
 import me.holiday.auth.domain.Member;
 import me.holiday.common.exception.AuthException;
 import me.holiday.redis.RedisService;
@@ -41,15 +43,20 @@ public class TokenService {
     public void validTokenByRedis(String authToken) {
         Long memberId = tokenParser.getMemberId(authToken);
 
-        String tokenByRedis = redisService.getToken(memberId);
-        log.info("{}", tokenByRedis);
-        log.info("{}", authToken);
-        if (!StringUtils.hasText(tokenByRedis)
-                || !tokenByRedis.equals(authToken)) {
+        TokenRes.AccessTokenRes tokenRes = redisService.getToken(memberId);
+        if (tokenRes == null
+                || !authToken.equals(tokenRes.accessToken())) {
             throw new AuthException(
                     HttpStatus.UNAUTHORIZED,
                     "유효하지 않은 토큰",
                     null);
         }
+    }
+
+    public TokenReq saveTokenReq(Long memberId, String accessToken, String refreshToken) {
+        return new TokenReq(
+                memberId,
+                accessToken, tokenProvider.tokenProperties.validTime().access(),
+                refreshToken, tokenProvider.tokenProperties.validTime().refresh());
     }
 }

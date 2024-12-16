@@ -1,8 +1,11 @@
 package me.holiday.redis;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.holiday.auth.api.dto.TokenReq;
+import me.holiday.auth.api.dto.TokenRes;
 import me.holiday.common.exception.AuthException;
 import me.holiday.common.exception.ServerException;
 import me.holiday.security.config.AuthRequestProperties;
@@ -28,39 +31,41 @@ import java.util.Map;
 public class RedisService {
 
     private final AuthRequestProperties authReqProperties;
-    private final RedisSerializable redisSerializable;
-    private final StringRedisTemplate template;
-    private final TokenProperties tokenProperties;
+    private final ObjectMapper mapper;
 
-    public void sendLoginTokenMessage(Map<String, String> message) {
+    public void sendLoginTokenMessage(TokenReq tokenReq) {
+        log.info("[TokenReq] {}", tokenReq.toString());
         try {
-            String serialize = redisSerializable.serialize(message);
-            template.convertAndSend(TokenConstant.TOKEN.getValue(), serialize);
+            String tokenReqStrBody = mapper.writeValueAsString(tokenReq);
+            HttpClient httpClient = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(authReqProperties.uri() + "/token/save"))
+                    .POST(HttpRequest.BodyPublishers.ofString(tokenReqStrBody))
+                    .headers(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .build();
 
-            message.keySet().forEach(key -> {
-                if (key.contains(TokenConstant.ACCESS.getValue())) {
-                    template.opsForValue().set(
-                            key,
-                            message.get(key),
-                            tokenProperties.validTime().access());
-                }
+            HttpResponse<String> response = httpClient
+                    .send(request, HttpResponse.BodyHandlers.ofString());
 
-                if (key.contains(TokenConstant.REFRESH.getValue())) {
-                    template.opsForValue().set(
-                            key,
-                            message.get(key),
-                            tokenProperties.validTime().refresh());
-                }
-            });
+            if (response.statusCode() != 200) {
+                log.error("[Auth] 인증 서버 Not 200");
+                throw new ServerException();
+            }
+            if (response.statusCode() == 403) {
+                log.error("[Auth] 토큰 저장 X");
+            }
 
-            log.info("[Redis] 메시지 밣행 : {}",  message);
         } catch (JsonProcessingException e) {
-            log.error("[Redis] JSON Parse Error : {}", e.getMessage());
+            log.error("[Redis] Json 파싱 에러");
+            throw new ServerException();
+        } catch (IOException | InterruptedException e) {
+            log.error("[Auth] 인증 서버 요청 에러");
             throw new ServerException();
         }
+
     }
 
-    public String getToken(Long memberId) {
+    public TokenRes.AccessTokenRes getToken(Long memberId) {
         HttpClient httpClient = HttpClient.newHttpClient();
 
         HttpRequest redisAuthReq = HttpRequest.newBuilder()
@@ -83,7 +88,7 @@ public class RedisService {
                         null);
             }
 
-            return redisAuthRes.body();
+            return mapper.readValue(redisAuthRes.body(), TokenRes.AccessTokenRes.class);
         } catch (IOException | InterruptedException e) {
             log.error("[Redis] 레디스 서버 통신 오류");
             throw new ServerException();
