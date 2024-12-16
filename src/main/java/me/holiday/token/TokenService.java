@@ -1,6 +1,7 @@
 package me.holiday.token;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.holiday.auth.domain.Member;
 import me.holiday.common.exception.AuthException;
 import me.holiday.redis.RedisService;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TokenService {
@@ -40,7 +42,9 @@ public class TokenService {
         Long memberId = tokenParser.getMemberId(authToken);
 
         String tokenByRedis = redisService.getToken(memberId);
-        if (StringUtils.hasText(tokenByRedis)
+        log.info("{}", tokenByRedis);
+        log.info("{}", authToken);
+        if (!StringUtils.hasText(tokenByRedis)
                 || !tokenByRedis.equals(authToken)) {
             throw new AuthException(
                     HttpStatus.UNAUTHORIZED,

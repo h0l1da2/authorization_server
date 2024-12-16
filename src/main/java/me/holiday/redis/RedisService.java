@@ -5,13 +5,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.holiday.common.exception.AuthException;
 import me.holiday.common.exception.ServerException;
+import me.holiday.security.config.AuthRequestProperties;
 import me.holiday.token.TokenConstant;
 import me.holiday.token.TokenProperties;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Map;
 
 @Slf4j
@@ -19,6 +27,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class RedisService {
 
+    private final AuthRequestProperties authReqProperties;
     private final RedisSerializable redisSerializable;
     private final StringRedisTemplate template;
     private final TokenProperties tokenProperties;
@@ -52,6 +61,33 @@ public class RedisService {
     }
 
     public String getToken(Long memberId) {
-        return template.opsForValue().get(memberId + TokenConstant.ACCESS_TOKEN_KEY_NAME.getValue());
+        HttpClient httpClient = HttpClient.newHttpClient();
+
+        HttpRequest redisAuthReq = HttpRequest.newBuilder()
+                .uri(URI.create(authReqProperties.uri()
+                        + "/access-token?memberId=" + memberId))
+                .headers(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .GET()
+                .build();
+
+        try {
+            HttpResponse<String> redisAuthRes = httpClient
+                    .send(
+                            redisAuthReq,
+                            HttpResponse.BodyHandlers.ofString());
+
+            if (redisAuthRes.statusCode() != 200) {
+                throw new AuthException(
+                        HttpStatus.UNAUTHORIZED,
+                        "토큰 없음",
+                        null);
+            }
+
+            return redisAuthRes.body();
+        } catch (IOException | InterruptedException e) {
+            log.error("[Redis] 레디스 서버 통신 오류");
+            throw new ServerException();
+        }
+
     }
 }

@@ -37,10 +37,10 @@ public class AuthApi {
     /**
      * 액세스 토큰 검증
      * - 유효하지 않을 경우 예외 발생
-     * @param authToken : 액세스 토큰
+     * @param token : 액세스 토큰
      */
     @GetMapping("/validation/access-token")
-    public void validToken(@RequestParam String authToken) {
-        authService.validToken(authToken);
+    public void validToken(@RequestParam String token) {
+        authService.validToken(token);
     }
 }
