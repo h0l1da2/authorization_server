@@ -13,7 +13,7 @@ import java.util.Date;
 @Component
 public class TokenProvider {
 
-    private final TokenProperties tokenProperties;
+    public final TokenProperties tokenProperties;
     private Key key;
 
     public TokenProvider(TokenProperties tokenProperties) {

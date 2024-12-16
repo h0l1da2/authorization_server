@@ -2,4 +2,4 @@ app:
   security:
     auth:
       server:
-        uri: http://localhost:8001/redis/api/v1
+        uri: http://localhost:8002/redis/api/v1

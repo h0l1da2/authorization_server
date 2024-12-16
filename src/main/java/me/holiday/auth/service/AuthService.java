@@ -1,8 +1,10 @@
 package me.holiday.auth.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.holiday.auth.api.dto.SignInDto.SignInRes;
 import me.holiday.auth.api.dto.SignUpDto;
+import me.holiday.auth.api.dto.TokenReq;
 import me.holiday.auth.domain.Member;
 import me.holiday.auth.exception.MemberException;
 import me.holiday.auth.repository.MemberRepository;
@@ -18,6 +20,7 @@ import java.util.Optional;
 
 import static me.holiday.auth.api.dto.SignInDto.SignInReq;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -57,12 +60,9 @@ public class AuthService {
         String accessToken = tokenService.getAccessToken(member);
         String refreshToken = tokenService.getRefreshToken();
 
+        TokenReq tokenReq = tokenService.saveTokenReq(member.getId(), accessToken, refreshToken);
         // Redis 저장
-        redisService.sendLoginTokenMessage(
-                Map.of(
-                        member.getId() + "_access", accessToken,
-                        member.getId() + "_refresh", refreshToken
-        ));
+        redisService.sendLoginTokenMessage(tokenReq);
         return new SignInRes(accessToken, refreshToken);
     }
 
@@ -70,7 +70,9 @@ public class AuthService {
         return memberRepository.findByUsername(username);
     }
 
-//    public void signIn(SignInDto dto) {
-//
-//    }
+    @LogExecution(message = "토큰 검증 성공")
+    public void validToken(String authToken) {
+        tokenService.validTokenByRedis(authToken);
+    }
+
 }

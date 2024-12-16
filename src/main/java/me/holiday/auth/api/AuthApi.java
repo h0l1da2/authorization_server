@@ -6,10 +6,7 @@ import me.holiday.auth.api.dto.SignInDto;
 import me.holiday.auth.api.dto.SignInDto.SignInRes;
 import me.holiday.auth.api.dto.SignUpDto;
 import me.holiday.auth.service.AuthService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,5 +32,15 @@ public class AuthApi {
     @PostMapping("/sign-in")
     public SignInRes signIn(@RequestBody @Valid SignInDto.SignInReq dto) {
         return authService.signIn(dto);
+    }
+
+    /**
+     * 액세스 토큰 검증
+     * - 유효하지 않을 경우 예외 발생
+     * @param token : 액세스 토큰
+     */
+    @GetMapping("/validation/access-token")
+    public void validToken(@RequestParam String token) {
+        authService.validToken(token);
     }
 }
