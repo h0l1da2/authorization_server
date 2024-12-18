@@ -32,8 +32,8 @@ public class TokenService {
         return tokenParser.getMemberId(token);
     }
 
-    public String getRefreshToken() {
-        return tokenProvider.createRefreshToken();
+    public String getRefreshToken(Long memberId) {
+        return tokenProvider.createRefreshToken(memberId);
     }
 
     public String getRoleName(String token) {
@@ -58,5 +58,18 @@ public class TokenService {
                 memberId,
                 accessToken, tokenProvider.tokenProperties.validTime().access(),
                 refreshToken, tokenProvider.tokenProperties.validTime().refresh());
+    }
+
+    public void validRefreshToken(final String refreshToken) {
+        Long memberId = tokenParser.getMemberId(refreshToken);
+
+        TokenRes.RefreshTokenRes tokenRes = redisService.getRefreshToken(memberId);
+        if (tokenRes == null
+                || !refreshToken.equals(tokenRes.refreshToken())) {
+            throw new AuthException(
+                    HttpStatus.UNAUTHORIZED,
+                    "유효하지 않은 토큰",
+                    null);
+        }
     }
 }

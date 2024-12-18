@@ -36,8 +36,8 @@ public class TokenProvider {
                 .compact();
     }
 
-    public String createRefreshToken() {
-        Claims claims = makeRefreshClaims();
+    public String createRefreshToken(Long memberId) {
+        Claims claims = makeRefreshClaims(memberId);
 
         return Jwts.builder()
                 .header().add(
@@ -62,7 +62,7 @@ public class TokenProvider {
                 .build();
     }
 
-    public Claims makeRefreshClaims() {
+    public Claims makeRefreshClaims(Long memberId) {
         Date now = new Date();
 
         return Jwts.claims()
@@ -71,6 +71,7 @@ public class TokenProvider {
                 .expiration(new Date(
                         now.getTime()
                                 + tokenProperties.validTime().refresh()))
+                .add(TokenConstant.MEMBER_ID.getValue(), memberId)
                 .build();
     }
 }

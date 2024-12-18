@@ -95,4 +95,34 @@ public class RedisService {
         }
 
     }
+
+    public TokenRes.RefreshTokenRes getRefreshToken(final Long memberId) {
+        HttpClient httpClient = HttpClient.newHttpClient();
+
+        HttpRequest redisAuthReq = HttpRequest.newBuilder()
+                .uri(URI.create(authReqProperties.uri()
+                        + "/refresh-token?memberId=" + memberId))
+                .headers(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .GET()
+                .build();
+
+        try {
+            HttpResponse<String> redisAuthRes = httpClient
+                    .send(
+                            redisAuthReq,
+                            HttpResponse.BodyHandlers.ofString());
+
+            if (redisAuthRes.statusCode() != 200) {
+                throw new AuthException(
+                        HttpStatus.UNAUTHORIZED,
+                        "토큰 없음",
+                        null);
+            }
+
+            return mapper.readValue(redisAuthRes.body(), TokenRes.RefreshTokenRes.class);
+        } catch (IOException | InterruptedException e) {
+            log.error("[Redis] 레디스 서버 통신 오류");
+            throw new ServerException();
+        }
+    }
 }

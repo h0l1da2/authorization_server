@@ -8,4 +8,17 @@ public record TokenRes() {
 
     }
 
+    public record RefreshTokenRes(
+            String refreshToken
+    ) {
+
+    }
+
+    public record AccessAndRefreshTokenRes(
+            String accessToken,
+            String refreshToken
+    ) {
+
+    }
+
 }
