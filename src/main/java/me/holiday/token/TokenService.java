@@ -9,7 +9,6 @@ import me.holiday.common.exception.AuthException;
 import me.holiday.redis.RedisService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 @Slf4j
 @Service
@@ -20,7 +19,8 @@ public class TokenService {
     private final TokenProvider tokenProvider;
     private final TokenParser tokenParser;
 
-    public boolean isValidToken(String token) {
+    public boolean isValidAccessToken(String token) {
+        validAccessTokenByRedis(token);
         return tokenParser.isValid(token);
     }
 
@@ -32,15 +32,15 @@ public class TokenService {
         return tokenParser.getMemberId(token);
     }
 
-    public String getRefreshToken() {
-        return tokenProvider.createRefreshToken();
+    public String getRefreshToken(Long memberId) {
+        return tokenProvider.createRefreshToken(memberId);
     }
 
     public String getRoleName(String token) {
         return tokenParser.getRoleName(token);
     }
 
-    public void validTokenByRedis(String authToken) {
+    private void validAccessTokenByRedis(String authToken) {
         Long memberId = tokenParser.getMemberId(authToken);
 
         TokenRes.AccessTokenRes tokenRes = redisService.getToken(memberId);
@@ -58,5 +58,18 @@ public class TokenService {
                 memberId,
                 accessToken, tokenProvider.tokenProperties.validTime().access(),
                 refreshToken, tokenProvider.tokenProperties.validTime().refresh());
+    }
+
+    public void validRefreshToken(final String refreshToken) {
+        Long memberId = tokenParser.getMemberId(refreshToken);
+
+        TokenRes.RefreshTokenRes tokenRes = redisService.getRefreshToken(memberId);
+        if (tokenRes == null
+                || !refreshToken.equals(tokenRes.refreshToken())) {
+            throw new AuthException(
+                    HttpStatus.UNAUTHORIZED,
+                    "유효하지 않은 토큰",
+                    null);
+        }
     }
 }

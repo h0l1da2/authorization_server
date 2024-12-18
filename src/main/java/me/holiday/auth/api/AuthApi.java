@@ -8,6 +8,8 @@ import me.holiday.auth.api.dto.SignUpDto;
 import me.holiday.auth.service.AuthService;
 import org.springframework.web.bind.annotation.*;
 
+import static me.holiday.auth.api.dto.TokenRes.*;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -40,7 +42,17 @@ public class AuthApi {
      * @param token : 액세스 토큰
      */
     @GetMapping("/validation/access-token")
-    public void validToken(@RequestParam String token) {
-        authService.validToken(token);
+    public void validAccessToken(@RequestParam String token) {
+        authService.validAccessToken(token);
+    }
+
+    /**
+     * 리프레쉬 토큰 검증
+     * @param refreshToken : 리프레쉬 토큰
+     * @return : 리프레쉬 / 액세스 토큰
+     */
+    @GetMapping("/validation/refresh-token")
+    public AccessAndRefreshTokenRes validRefreshToken(@RequestParam String refreshToken) {
+        return authService.validRefreshToken(refreshToken);
     }
 }
