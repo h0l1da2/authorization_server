@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import me.holiday.auth.api.dto.SignInDto;
 import me.holiday.auth.api.dto.SignInDto.SignInRes;
 import me.holiday.auth.api.dto.SignUpDto;
-import me.holiday.auth.api.dto.TokenRes;
 import me.holiday.auth.service.AuthService;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,7 +43,7 @@ public class AuthApi {
      */
     @GetMapping("/validation/access-token")
     public void validAccessToken(@RequestParam String token) {
-        authService.validToken(token);
+        authService.validAccessToken(token);
     }
 
     /**

@@ -19,7 +19,7 @@ public class TokenService {
     private final TokenProvider tokenProvider;
     private final TokenParser tokenParser;
 
-    public boolean isValidToken(String token) {
+    public boolean isValidAccessToken(String token) {
         validAccessTokenByRedis(token);
         return tokenParser.isValid(token);
     }
