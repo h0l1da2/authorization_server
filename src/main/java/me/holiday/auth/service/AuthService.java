@@ -9,6 +9,7 @@ import me.holiday.auth.domain.Member;
 import me.holiday.auth.exception.MemberException;
 import me.holiday.auth.repository.MemberRepository;
 import me.holiday.common.annotation.log.LogExecution;
+import me.holiday.common.exception.AuthException;
 import me.holiday.redis.RedisService;
 import me.holiday.token.TokenService;
 import org.springframework.http.HttpStatus;
@@ -72,7 +73,14 @@ public class AuthService {
 
     @LogExecution(message = "토큰 검증 성공")
     public void validToken(String authToken) {
-        tokenService.validTokenByRedis(authToken);
+        boolean isValid = tokenService.isValidToken(authToken);
+
+        if (!isValid) {
+            throw new AuthException(
+                    HttpStatus.UNAUTHORIZED,
+                    "토큰 검증 실패",
+                    null);
+        }
     }
 
 }

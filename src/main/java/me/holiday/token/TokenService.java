@@ -9,7 +9,6 @@ import me.holiday.common.exception.AuthException;
 import me.holiday.redis.RedisService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 @Slf4j
 @Service
@@ -21,6 +20,7 @@ public class TokenService {
     private final TokenParser tokenParser;
 
     public boolean isValidToken(String token) {
+        validAccessTokenByRedis(token);
         return tokenParser.isValid(token);
     }
 
@@ -40,7 +40,7 @@ public class TokenService {
         return tokenParser.getRoleName(token);
     }
 
-    public void validTokenByRedis(String authToken) {
+    private void validAccessTokenByRedis(String authToken) {
         Long memberId = tokenParser.getMemberId(authToken);
 
         TokenRes.AccessTokenRes tokenRes = redisService.getToken(memberId);
