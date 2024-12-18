@@ -86,11 +86,9 @@ public class AuthService {
         Long memberId = tokenService.getMemberId(refreshToken);
 
         Member member = memberService.findById(memberId)
-                .orElseThrow(() -> {
-                    throw new MemberException(HttpStatus.NOT_FOUND,
-                            "토큰 아이디로 멤버 없음",
-                            null);
-                });
+                .orElseThrow(() -> new MemberException(HttpStatus.NOT_FOUND,
+                        "토큰 아이디로 멤버 없음",
+                        null));
 
         String newAccessToken = tokenService.getAccessToken(member);
         String newRefreshToken = tokenService.getRefreshToken(member.getId());
